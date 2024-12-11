@@ -17,6 +17,9 @@ pub struct Options {
     #[arg(short = 'v', long = "verbose", help = "Display what is being done.")]
     pub verbose: bool,
 
+    #[arg(short = 'f', long = "force", help = "Overwrite files if they exist already.")]
+    pub force: bool,
+
     #[arg(short='h', long="help", action=clap::ArgAction::Help, help="Print help.", required=false)]
     pub print_help: (),
 

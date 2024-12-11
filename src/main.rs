@@ -47,7 +47,7 @@ fn inner_main() -> Result<u32> {
         return Err(anyhow!("Some source map to another source file."));
     }
 
-    if name_map.values().any(|b| std::fs::exists(b).unwrap_or(true)) {
+    if !options.force && name_map.values().any(|b| std::fs::exists(b).unwrap_or(true)) {
         return Err(anyhow!("One of the destination files already exist."));
     }
 
@@ -71,7 +71,7 @@ fn inner_main() -> Result<u32> {
 
         if !options.preview {
             //TODO: This is prone to time-of-check, time-of-use errors.
-            if !(std::fs::exists(destination).unwrap_or(true)) {
+            if options.force || !(std::fs::exists(destination).unwrap_or(true)) {
                 std::fs::rename(source, destination)?;
                 n_renamed += 1;
             } else {
