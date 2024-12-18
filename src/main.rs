@@ -6,7 +6,7 @@ use itertools::Itertools;
 use regex::bytes::RegexBuilder;
 use walkdir::WalkDir;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::ffi::OsStr;
 use std::io;
 use std::io::Write;
@@ -40,7 +40,7 @@ fn inner_main() -> Result<u32> {
     let name_map = get_name_map(&options.source, &options.destination, &options)?;
 
     if !name_map.values().all_unique() {
-        return Err(anyhow!("Multiple sources map to the same destination file."));
+        return Err(anyhow!(duplicate_msg(name_map)));
     }
 
     if !name_map.values().chain(name_map.keys()).all_unique() {
@@ -87,6 +87,27 @@ fn inner_main() -> Result<u32> {
     }
 
     return Ok(n_renamed);
+}
+
+/// Find the conflicting mappings in name_map.
+fn duplicate_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
+    let duplicates: HashSet<PathBuf> = name_map.values().duplicates().cloned().collect();
+    let mut duplicate_map: HashMap<&PathBuf, Vec<PathBuf>> = HashMap::new();
+    for (s, d) in &name_map {
+        if duplicates.contains(d) {
+            duplicate_map.entry(d).or_default().push(s.clone());
+        };
+    }
+
+    let mut msg = String::from("Multiple sources map to the same destination.\n");
+    for (a, b) in duplicate_map {
+        msg += &format!("The following source files all map to '{}':\n", a.to_string_lossy());
+        for c in b {
+            msg += &format!("'{}'\n", c.to_string_lossy());
+        }
+    }
+
+    return msg;
 }
 
 /// Get the map of source to destination filenames.
