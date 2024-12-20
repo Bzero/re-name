@@ -44,7 +44,7 @@ fn inner_main() -> Result<u32> {
     }
 
     if !name_map.values().chain(name_map.keys()).all_unique() {
-        return Err(anyhow!("Some source map to another source file."));
+        return Err(anyhow!(map_to_source_msg(name_map)));
     }
 
     if !options.force && name_map.values().any(|b| std::fs::exists(b).unwrap_or(true)) {
@@ -105,6 +105,23 @@ fn duplicate_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
         for c in b {
             msg += &format!("'{}'\n", c.to_string_lossy());
         }
+    }
+
+    return msg;
+}
+
+/// Find the source files mapping to other source files.
+fn map_to_source_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
+    let mut conflict_map: HashMap<&PathBuf, &PathBuf> = HashMap::new();
+    for (s, d) in &name_map {
+        if name_map.keys().contains(d) {
+            conflict_map.insert(s, d);
+        };
+    }
+
+    let mut msg = String::from("Some source files map to another source file.\nThe following files are conflicting:\n");
+    for (a, b) in conflict_map {
+        msg += &format!("'{}' ⇒ '{}'\n", a.to_string_lossy(), b.to_string_lossy());
     }
 
     return msg;
