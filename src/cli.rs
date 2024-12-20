@@ -20,6 +20,13 @@ pub struct Options {
     #[arg(short = 'f', long = "force", help = "Overwrite files if they exist already.")]
     pub force: bool,
 
+    #[arg(
+        short = 'r',
+        long = "match-subdirs",
+        help = "Match subdirectories. Use with care when matching path separators."
+    )]
+    pub match_subdirs: bool,
+
     #[arg(short='h', long="help", action=clap::ArgAction::Help, help="Print help.", required=false)]
     pub print_help: (),
 

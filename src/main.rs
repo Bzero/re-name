@@ -119,8 +119,9 @@ fn get_name_map(
     let source_regex = build_regex(source_pattern, &options)?;
 
     let mut walker = WalkDir::new(Path::new("./"));
-    //Limit the possible files to the current directory for now.
-    walker = walker.max_depth(1);
+    if !options.match_subdirs {
+        walker = walker.max_depth(1);
+    }
 
     let mut name_map: BTreeMap<PathBuf, PathBuf> = BTreeMap::new();
 
