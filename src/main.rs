@@ -48,7 +48,7 @@ fn inner_main() -> Result<u32> {
     }
 
     if !options.force && name_map.values().any(|b| std::fs::exists(b).unwrap_or(true)) {
-        return Err(anyhow!("One of the destination files already exist."));
+        return Err(anyhow!(destination_exists_msg(name_map)));
     }
 
     let mut stdout = io::stdout().lock();
@@ -104,6 +104,18 @@ fn duplicate_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
         msg += &format!("The following source files all map to '{}':\n", a.to_string_lossy());
         for c in b {
             msg += &format!("'{}'\n", c.to_string_lossy());
+        }
+    }
+
+    return msg;
+}
+
+/// Find the existing destination files.
+fn destination_exists_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
+    let mut msg = String::from("The following destination files already exist:\n");
+    for (s, d) in name_map {
+        if std::fs::exists(&d).unwrap_or(true) {
+            msg += &format!("'{}' ⇒ '{}'\n", s.to_string_lossy(), d.to_string_lossy());
         }
     }
 
