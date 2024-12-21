@@ -20,7 +20,7 @@ fn main() {
 
     let exit_code = match success {
         Ok(n) => {
-            println!("Renamed {} files.", n);
+            println!("Renamed {} files or folders.", n);
             0
         }
         Err(e) => {
@@ -33,7 +33,7 @@ fn main() {
     process::exit(exit_code);
 }
 
-/// Inner main. Performs the actual work and returns the number of renamed files or an error.
+/// Inner main. Performs the actual work and returns the number of renamed files and folders or an error.
 fn inner_main() -> Result<u32> {
     let options = cli::Options::parse();
 
@@ -55,7 +55,7 @@ fn inner_main() -> Result<u32> {
     let mut n_renamed: u32 = 0;
 
     if name_map.is_empty() {
-        writeln!(stdout, "No files match the source pattern.")?;
+        writeln!(stdout, "No files or folders match the source pattern.")?;
         return Ok(0);
     }
 
@@ -77,7 +77,7 @@ fn inner_main() -> Result<u32> {
             } else {
                 writeln!(
                     stdout,
-                    "File {} already exists, will not overwrite.",
+                    "'{}' already exists, will not overwrite.",
                     destination.to_string_lossy()
                 )?;
             }
@@ -101,7 +101,7 @@ fn duplicate_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
 
     let mut msg = String::from("Multiple sources map to the same destination.\n");
     for (a, b) in duplicate_map {
-        msg += &format!("The following source files all map to '{}':\n", a.to_string_lossy());
+        msg += &format!("The following sources all map to '{}':\n", a.to_string_lossy());
         for c in b {
             msg += &format!("'{}'\n", c.to_string_lossy());
         }
@@ -110,9 +110,9 @@ fn duplicate_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
     return msg;
 }
 
-/// Find the existing destination files.
+/// Find the existing destination files or folders.
 fn destination_exists_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
-    let mut msg = String::from("The following destination files already exist:\n");
+    let mut msg = String::from("The following destinations already exist:\n");
     for (s, d) in name_map {
         if std::fs::exists(&d).unwrap_or(true) {
             msg += &format!("'{}' ⇒ '{}'\n", s.to_string_lossy(), d.to_string_lossy());
@@ -122,7 +122,7 @@ fn destination_exists_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
     return msg;
 }
 
-/// Find the source files mapping to other source files.
+/// Find the sources mapping to other sources.
 fn map_to_source_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
     let mut conflict_map: HashMap<&PathBuf, &PathBuf> = HashMap::new();
     for (s, d) in &name_map {
@@ -131,7 +131,7 @@ fn map_to_source_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
         };
     }
 
-    let mut msg = String::from("Some source files map to another source file.\nThe following files are conflicting:\n");
+    let mut msg = String::from("Some sources map to another sources.\nThe following files or folders are conflicting:\n");
     for (a, b) in conflict_map {
         msg += &format!("'{}' ⇒ '{}'\n", a.to_string_lossy(), b.to_string_lossy());
     }
@@ -139,7 +139,7 @@ fn map_to_source_msg(name_map: BTreeMap<PathBuf, PathBuf>) -> String {
     return msg;
 }
 
-/// Get the map of source to destination filenames.
+/// Get the map of sources to destinations.
 fn get_name_map(
     source_pattern: &String,
     destination_pattern: &String,
@@ -162,10 +162,10 @@ fn get_name_map(
                 if let Some(inner) = err.io_error() {
                     match inner.kind() {
                         io::ErrorKind::PermissionDenied => {
-                            eprintln!("Missing permission to access {}.", path.display())
+                            eprintln!("Missing permission to access '{}'.", path.display())
                         }
                         _ => {
-                            eprintln!("Unable to access {}.", path.display())
+                            eprintln!("Unable to access '{}'.", path.display())
                         }
                     }
                 }
