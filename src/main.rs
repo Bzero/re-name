@@ -145,7 +145,7 @@ fn get_name_map(
     destination_pattern: &String,
     options: &cli::Options,
 ) -> Result<BTreeMap<PathBuf, PathBuf>> {
-    let source_regex = build_regex(source_pattern, &options)?;
+    let source_regex = build_regex(source_pattern)?;
 
     let mut walker = WalkDir::new(Path::new("./"));
     if !options.match_subdirs {
@@ -195,7 +195,7 @@ fn get_name_map(
 }
 
 /// Build Regex matching a full search string according to pattern and options.
-fn build_regex(pattern: &String, options: &cli::Options) -> Result<regex::bytes::Regex, regex::Error> {
+fn build_regex(pattern: &String) -> Result<regex::bytes::Regex, regex::Error> {
     let full_pattern = String::from("^") + pattern + "$";
     return RegexBuilder::new(&full_pattern).build();
 }
