@@ -165,7 +165,7 @@ dependencies = [
 
 [[package]]
 name = "re-name"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",

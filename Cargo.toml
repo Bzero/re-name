@@ -1,6 +1,6 @@
 [package]
 name = "re-name"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Bzero <B_0@posteo.net>"]
 edition = "2021"
 description = "re-name is a command-line tool for (bulk) file renaming."
