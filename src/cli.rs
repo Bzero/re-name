@@ -1,7 +1,14 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(name = "re-name", author, version, about, max_term_width = 128)]
+#[command(
+    name = "re-name",
+    author,
+    version,
+    about,
+    arg_required_else_help = true,
+    max_term_width = 128
+)]
 #[clap(disable_help_flag = true, disable_version_flag = true)]
 pub struct Options {
     #[arg(id = "SOURCE", required = true, help = "The regex pattern matching the source files.")]
